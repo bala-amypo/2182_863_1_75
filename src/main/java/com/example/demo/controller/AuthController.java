@@ -5,7 +5,11 @@ import com.example.demo.model.*;
 import com.example.demo.service.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
+@Tag(name = "Auth Controller")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -17,8 +21,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(userService.register(request));
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            User user = userService.register(request);
+            return ResponseEntity.ok(user);
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity
+                    .status(ex.getStatusCode())
+                    .body(ex.getReason());
+        }
     }
 
     @PostMapping("/login")
